@@ -58,7 +58,7 @@ func TestVulnerability_Properties(t *testing.T) {
 }
 
 func assertValidBOM(t *testing.T, bomBytes []byte, format BOMFileFormat, version SpecVersion) {
-	var v validator
+	var v validator_test
 	if format == BOMFileFormatJSON {
 		v = newJSONValidator()
 	} else {

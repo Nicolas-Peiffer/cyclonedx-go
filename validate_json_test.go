@@ -33,7 +33,7 @@ var jsonSchemaFiles = map[SpecVersion]string{
 
 type jsonValidator struct{}
 
-func newJSONValidator() validator {
+func newJSONValidator() validator_test {
 	return &jsonValidator{}
 }
 

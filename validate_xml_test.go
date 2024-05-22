@@ -21,7 +21,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/terminalstatic/go-xsd-validate"
+	xsdvalidate "github.com/terminalstatic/go-xsd-validate"
 )
 
 var xmlSchemaFiles = map[SpecVersion]string{
@@ -38,7 +38,7 @@ var xsdValidateInitOnce sync.Once
 
 type xmlValidator struct{}
 
-func newXMLValidator() validator {
+func newXMLValidator() validator_test {
 	var initErr error
 	xsdValidateInitOnce.Do(func() {
 		initErr = xsdvalidate.Init()

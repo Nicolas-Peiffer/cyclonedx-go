@@ -17,6 +17,6 @@
 
 package cyclonedx
 
-type validator interface {
+type validator_test interface {
 	Validate(bom []byte, specVersion SpecVersion) error
 }
