@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bom xmlns="http://cyclonedx.org/schema/bom/1.6" version="1">
+  <components>
+    <component bom-ref="A128GCM" type="cryptographic-asset">
+      <name>AES/GCM/NoPadding</name>
+      <description>AES GCM using 128-bit key</description>
+      <externalReferences>
+        <reference type="website">
+          <url>https://www.rfc-editor.org/rfc/rfc7518.html#section-5.3</url>
+          <comment>[RFC7518, Section 5.3]</comment>
+        </reference>
+        <reference type="website">
+          <url>http://www.w3.org/2009/xmlenc11#aes128-gcm</url>
+          <comment>JOSE XML</comment>
+        </reference>
+      </externalReferences>
+      <cryptoProperties>
+        <assetType>algorithm</assetType>
+        <algorithmProperties>
+          <primitive>ae</primitive>
+          <mode>gcm</mode>
+          <classicalSecurityLevel>128</classicalSecurityLevel>
+          <nistQuantumSecurityLevel>1</nistQuantumSecurityLevel>
+        </algorithmProperties>
+        <oid>2.16.840.1.101.3.4.1.6</oid>
+      </cryptoProperties>
+    </component>
+    <component bom-ref="RS512" type="cryptographic-asset">
+      <name>SHA512withRSA</name>
+      <description>RSASSA-PKCS1-v1_5 using SHA-512</description>
+      <externalReferences>
+        <reference type="website">
+          <url>https://www.rfc-editor.org/rfc/rfc7518.html#section-3.3</url>
+          <comment>[RFC7518, Section 3.3]</comment>
+        </reference>
+        <reference type="website">
+          <url>http://www.w3.org/2001/04/xmldsig-more#rsa-sha512</url>
+          <comment>JOSE XML</comment>
+        </reference>
+      </externalReferences>
+      <cryptoProperties>
+        <assetType>algorithm</assetType>
+        <algorithmProperties>
+          <primitive>signature</primitive>
+          <mode>unknown</mode>
+          <classicalSecurityLevel>0</classicalSecurityLevel>
+          <nistQuantumSecurityLevel>0</nistQuantumSecurityLevel>
+        </algorithmProperties>
+        <oid>1.2.840.113549.1.1.13</oid>
+      </cryptoProperties>
+    </component>
+  </components>
+</bom>

@@ -56,14 +56,3 @@ func TestVulnerability_Properties(t *testing.T) {
 	// EXPECT
 	assert.Equal(t, 0, len(*vuln.Properties))
 }
-
-func assertValidBOM(t *testing.T, bomBytes []byte, format BOMFileFormat, version SpecVersion) {
-	var v validator_test
-	if format == BOMFileFormatJSON {
-		v = newJSONValidator()
-	} else {
-		v = newXMLValidator()
-	}
-	err := v.Validate(bomBytes, version)
-	require.NoError(t, err)
-}

@@ -207,7 +207,8 @@ func TestJsonBOMEncoder_EncodeVersion(t *testing.T) {
 			require.NoError(t, err)
 
 			// Sanity checks: BOM has to be valid
-			assertValidBOM(t, buf.Bytes(), BOMFileFormatJSON, version)
+			err = bom.ValidateJSON()
+			require.NoError(t, err)
 
 			// Compare with snapshot
 			require.NoError(t, snapShooter.SnapshotMulti(fmt.Sprintf("%s.bom.json", version), buf.String()))
@@ -240,7 +241,8 @@ func TestXmlBOMEncoder_EncodeVersion(t *testing.T) {
 			require.NoError(t, snapShooter.SnapshotMulti(fmt.Sprintf("%s.bom.xml", version), buf.String()))
 
 			// Compare with snapshot
-			assertValidBOM(t, buf.Bytes(), BOMFileFormatXML, version)
+			err = bom.ValidateXML()
+			require.NoError(t, err)
 		})
 	}
 }

@@ -27,8 +27,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestRoundTripJSON(t *testing.T) {
-	bomFilePaths, err := filepath.Glob("./testdata/*.json")
+func TestRoundTripValidJSON(t *testing.T) {
+	bomFilePaths, err := filepath.Glob("./testdata/valid*.json")
 	require.NoError(t, err)
 
 	for _, bomFilePath := range bomFilePaths {
@@ -52,7 +52,8 @@ func TestRoundTripJSON(t *testing.T) {
 			require.NoError(t, err)
 
 			// Sanity checks: BOM has to be valid
-			assertValidBOM(t, buf.Bytes(), BOMFileFormatJSON, SpecVersion1_6)
+			err = bom.ValidateJSON()
+			require.NoError(t, err)
 
 			// Compare with snapshot
 			assert.NoError(t, snapShooter.SnapshotMulti(filepath.Base(bomFilePath), buf.String()))
@@ -60,8 +61,8 @@ func TestRoundTripJSON(t *testing.T) {
 	}
 }
 
-func TestRoundTripXML(t *testing.T) {
-	bomFilePaths, err := filepath.Glob("./testdata/*.xml")
+func TestRoundTripValidXML(t *testing.T) {
+	bomFilePaths, err := filepath.Glob("./testdata/valid*.xml")
 	require.NoError(t, err)
 
 	for _, bomFilePath := range bomFilePaths {
@@ -85,7 +86,76 @@ func TestRoundTripXML(t *testing.T) {
 			require.NoError(t, err)
 
 			// Sanity check: BOM has to be valid
-			assertValidBOM(t, buf.Bytes(), BOMFileFormatXML, SpecVersion1_6)
+			err = bom.ValidateXML()
+			require.NoError(t, err)
+
+			// Compare with snapshot
+			assert.NoError(t, snapShooter.SnapshotMulti(filepath.Base(bomFilePath), buf.String()))
+		})
+	}
+}
+
+func TestRoundTripInvalidJSON(t *testing.T) {
+	bomFilePaths, err := filepath.Glob("./testdata/invalid*.json")
+	require.NoError(t, err)
+
+	for _, bomFilePath := range bomFilePaths {
+		t.Run(filepath.Base(bomFilePath), func(t *testing.T) {
+			// Read original BOM JSON
+			inputFile, err := os.Open(bomFilePath)
+			require.NoError(t, err)
+
+			// Decode BOM
+			var bom BOM
+			require.NoError(t, NewBOMDecoder(inputFile, BOMFileFormatJSON).Decode(&bom))
+			inputFile.Close()
+
+			// Prepare encoding destination
+			buf := bytes.Buffer{}
+
+			// Encode BOM again
+			err = NewBOMEncoder(&buf, BOMFileFormatJSON).
+				SetPretty(true).
+				Encode(&bom)
+			require.NoError(t, err)
+
+			// Sanity checks: BOM has to be valid
+			err = bom.ValidateJSON()
+			require.Error(t, err)
+
+			// Compare with snapshot
+			assert.NoError(t, snapShooter.SnapshotMulti(filepath.Base(bomFilePath), buf.String()))
+		})
+	}
+}
+
+func TestRoundTripInalidXML(t *testing.T) {
+	bomFilePaths, err := filepath.Glob("./testdata/invalid*.xml")
+	require.NoError(t, err)
+
+	for _, bomFilePath := range bomFilePaths {
+		t.Run(filepath.Base(bomFilePath), func(t *testing.T) {
+			// Read original BOM XML
+			inputFile, err := os.Open(bomFilePath)
+			require.NoError(t, err)
+
+			// Decode BOM
+			var bom BOM
+			require.NoError(t, NewBOMDecoder(inputFile, BOMFileFormatXML).Decode(&bom))
+			inputFile.Close()
+
+			// Prepare encoding destination
+			buf := bytes.Buffer{}
+
+			// Encode BOM again
+			err = NewBOMEncoder(&buf, BOMFileFormatXML).
+				SetPretty(true).
+				Encode(&bom)
+			require.NoError(t, err)
+
+			// Sanity check: BOM has to be valid
+			err = bom.ValidateXML()
+			require.Error(t, err)
 
 			// Compare with snapshot
 			assert.NoError(t, snapShooter.SnapshotMulti(filepath.Base(bomFilePath), buf.String()))

@@ -406,6 +406,7 @@ func (tc *ToolsChoice) UnmarshalXML(d *xml.Decoder, _ xml.StartElement) error {
 	return nil
 }
 
+// TODO: this should use XML Catalogs instead. See github.com/jteeuwen/go-pkg-xmlx
 var xmlNamespaces = map[SpecVersion]string{
 	SpecVersion1_0: "http://cyclonedx.org/schema/bom/1.0",
 	SpecVersion1_1: "http://cyclonedx.org/schema/bom/1.1",
@@ -414,4 +415,13 @@ var xmlNamespaces = map[SpecVersion]string{
 	SpecVersion1_4: "http://cyclonedx.org/schema/bom/1.4",
 	SpecVersion1_5: "http://cyclonedx.org/schema/bom/1.5",
 	SpecVersion1_6: "http://cyclonedx.org/schema/bom/1.6",
+}
+
+func getSpecVersionByXmlNamespace(value string) (SpecVersion, error) {
+	for k, v := range xmlNamespaces {
+		if v == value {
+			return k, nil
+		}
+	}
+	return 0, errors.New("value not found in xmlNamespaces")
 }
