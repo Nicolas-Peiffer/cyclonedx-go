@@ -25,8 +25,8 @@ import (
 	"github.com/xeipuuv/gojsonschema"
 )
 
-// ValidateBOMJSON validates the BOM in JSON format against the specified schema version.
-func ValidateBOMJSON(jsonData []byte, version SpecVersion) error {
+// ValidateJSONData validates the BOM in JSON format against the specified schema version.
+func ValidateJSONData(jsonData []byte, version SpecVersion) error {
 	// TODO version-1 because the SpecVersion start at 0 <-> 1.0 and
 	schemaPath := filepath.Join("schema", fmt.Sprintf("bom-%s.schema.json", version.String()))
 	schemaLoader := gojsonschema.NewReferenceLoader(fmt.Sprintf("file://%s", schemaPath))
@@ -62,5 +62,5 @@ func (bom *BOM) ValidateJSON() error {
 		panic(err)
 	}
 
-	return ValidateBOMJSON(jsonData.Bytes(), bom.SpecVersion)
+	return ValidateJSONData(jsonData.Bytes(), bom.SpecVersion)
 }

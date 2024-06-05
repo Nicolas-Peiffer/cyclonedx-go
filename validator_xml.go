@@ -29,8 +29,8 @@ import (
 	"github.com/lestrrat-go/libxml2/xsd"
 )
 
-// ValidateBOMXML validates the BOM in XML format against the specified schema version using encoding/xml package.
-func ValidateBOMXML(xmlData []byte, version SpecVersion) error {
+// ValidateXMLData validates the BOM in XML format against the specified schema version using encoding/xml package.
+func ValidateXMLData(xmlData []byte, version SpecVersion) error {
 	schemaPath := filepath.Join("schema", fmt.Sprintf("bom-%s.xsd", version.String()))
 	schemaFile, err := os.Open(schemaPath)
 	if err != nil {
@@ -44,14 +44,7 @@ func ValidateBOMXML(xmlData []byte, version SpecVersion) error {
 		return fmt.Errorf("failed to read XML schema file: %v", err)
 	}
 
-	// Load the XML catalog
-	// catalogPath := "schema/xmlcatalog.xml"
-	// cat, err := catalog.ParseFile(catalogPath)
-	// if err != nil {
-	// 	return fmt.Errorf("failed to parse XML catalog: %v", err)
-	// }
-
-	// Load the schema
+	// Load the XSD schema and the XML catalog
 	schema, err := xsd.Parse(schemaData.Bytes(), xsd.WithPath("schema/xmlcatalog.xml"))
 	//schema, err := xsd.Parse(schemaData.Bytes())
 	if err != nil {
@@ -103,5 +96,5 @@ func (bom *BOM) ValidateXML() error {
 		panic(err)
 	}
 
-	return ValidateBOMXML(xmlData.Bytes(), version)
+	return ValidateXMLData(xmlData.Bytes(), version)
 }
