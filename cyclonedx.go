@@ -22,9 +22,11 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+
+	"github.com/blang/semver/v4"
 )
 
-//go:generate stringer -linecomment -output cyclonedx_string.go -type MediaType,SpecVersion
+//go:generate stringer -linecomment -output cyclonedx_string.go -type MediaType
 
 const (
 	BOMFormat = "CycloneDX"
@@ -951,7 +953,7 @@ const (
 )
 
 func (mt MediaType) WithVersion(specVersion SpecVersion) (string, error) {
-	if mt == MediaTypeJSON && specVersion < SpecVersion1_2 {
+	if mt == MediaTypeJSON && (specVersion.Compare(SpecVersion1_2) == -1) {
 		return "", fmt.Errorf("json format is not supported for specification versions lower than %s", SpecVersion1_2)
 	}
 
@@ -1312,16 +1314,27 @@ type Source struct {
 	URL  string `json:"url,omitempty" xml:"url,omitempty"`
 }
 
-type SpecVersion int
+// Alias semver.Version as SpecVersion
+type SpecVersion semver.Version
+
+// Method to get the version string
+func (v SpecVersion) String() string {
+	return semver.Version(v).String()
+}
+
+// Method to compare SpecVersion with another SpecVersion
+func (v SpecVersion) Compare(other SpecVersion) int {
+	return semver.Version(v).Compare(semver.Version(other))
+}
 
 const (
-	SpecVersion1_0 SpecVersion = iota + 1 // 1.0
-	SpecVersion1_1                        // 1.1
-	SpecVersion1_2                        // 1.2
-	SpecVersion1_3                        // 1.3
-	SpecVersion1_4                        // 1.4
-	SpecVersion1_5                        // 1.5
-	SpecVersion1_6                        // 1.6
+	SpecVersion1_0 = SpecVersion(semver.MustParse("1.0.0")) // 1.0
+	SpecVersion1_1 = SpecVersion(semver.MustParse("1.1.0")) // 1.1
+	SpecVersion1_2 = SpecVersion(semver.MustParse("1.2.0")) // 1.2
+	SpecVersion1_3 = SpecVersion(semver.MustParse("1.3.0")) // 1.3
+	SpecVersion1_4 = SpecVersion(semver.MustParse("1.4.0")) // 1.4
+	SpecVersion1_5 = SpecVersion(semver.MustParse("1.5.0")) // 1.5
+	SpecVersion1_6 = SpecVersion(semver.MustParse("1.6.0")) // 1.6
 )
 
 type StandardDefinition struct {
