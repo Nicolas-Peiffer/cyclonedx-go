@@ -187,12 +187,12 @@ func (tc *ToolsChoice) UnmarshalJSON(bytes []byte) error {
 	return nil
 }
 
-var jsonSchemas = map[SpecVersion]string{
-	SpecVersion1_0: "",
-	SpecVersion1_1: "",
-	SpecVersion1_2: "http://cyclonedx.org/schema/bom-1.2.schema.json",
-	SpecVersion1_3: "http://cyclonedx.org/schema/bom-1.3.schema.json",
-	SpecVersion1_4: "http://cyclonedx.org/schema/bom-1.4.schema.json",
-	SpecVersion1_5: "http://cyclonedx.org/schema/bom-1.5.schema.json",
-	SpecVersion1_6: "http://cyclonedx.org/schema/bom-1.6.schema.json",
+var jsonSchemas = map[string]string{
+	SpecVersion1_0.String(): "",
+	SpecVersion1_1.String(): "",
+	SpecVersion1_2.String(): "http://cyclonedx.org/schema/bom-1.2.schema.json",
+	SpecVersion1_3.String(): "http://cyclonedx.org/schema/bom-1.3.schema.json",
+	SpecVersion1_4.String(): "http://cyclonedx.org/schema/bom-1.4.schema.json",
+	SpecVersion1_5.String(): "http://cyclonedx.org/schema/bom-1.5.schema.json",
+	SpecVersion1_6.String(): "http://cyclonedx.org/schema/bom-1.6.schema.json",
 }

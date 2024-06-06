@@ -60,7 +60,10 @@ func (x xmlBOMDecoder) Decode(bom *BOM) error {
 
 	for specVersion, xmlNs := range xmlNamespaces {
 		if xmlNs == bom.XMLNS {
-			bom.SpecVersion = specVersion
+			bom.SpecVersion, err = SafeParseSemVer(specVersion)
+			if err != nil {
+				return err
+			}
 			break
 		}
 	}

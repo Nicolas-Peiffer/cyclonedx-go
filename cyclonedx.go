@@ -19,11 +19,8 @@ package cyclonedx
 
 import (
 	"encoding/xml"
-	"errors"
 	"fmt"
 	"regexp"
-
-	"github.com/blang/semver/v4"
 )
 
 //go:generate stringer -linecomment -output cyclonedx_string.go -type MediaType
@@ -31,8 +28,6 @@ import (
 const (
 	BOMFormat = "CycloneDX"
 )
-
-var ErrInvalidSpecVersion = errors.New("invalid specification version")
 
 type Advisory struct {
 	Title string `json:"title,omitempty" xml:"title,omitempty"`
@@ -131,8 +126,8 @@ type BOM struct {
 
 func NewBOM() *BOM {
 	return &BOM{
-		JSONSchema:  jsonSchemas[SpecVersion1_6],
-		XMLNS:       xmlNamespaces[SpecVersion1_6],
+		JSONSchema:  jsonSchemas[SpecVersion1_6.String()],
+		XMLNS:       xmlNamespaces[SpecVersion1_6.String()],
 		BOMFormat:   BOMFormat,
 		SpecVersion: SpecVersion1_6,
 		Version:     1,
@@ -1313,29 +1308,6 @@ type Source struct {
 	Name string `json:"name,omitempty" xml:"name,omitempty"`
 	URL  string `json:"url,omitempty" xml:"url,omitempty"`
 }
-
-// Alias semver.Version as SpecVersion
-type SpecVersion semver.Version
-
-// Method to get the version string
-func (v SpecVersion) String() string {
-	return semver.Version(v).String()
-}
-
-// Method to compare SpecVersion with another SpecVersion
-func (v SpecVersion) Compare(other SpecVersion) int {
-	return semver.Version(v).Compare(semver.Version(other))
-}
-
-const (
-	SpecVersion1_0 = SpecVersion(semver.MustParse("1.0.0")) // 1.0
-	SpecVersion1_1 = SpecVersion(semver.MustParse("1.1.0")) // 1.1
-	SpecVersion1_2 = SpecVersion(semver.MustParse("1.2.0")) // 1.2
-	SpecVersion1_3 = SpecVersion(semver.MustParse("1.3.0")) // 1.3
-	SpecVersion1_4 = SpecVersion(semver.MustParse("1.4.0")) // 1.4
-	SpecVersion1_5 = SpecVersion(semver.MustParse("1.5.0")) // 1.5
-	SpecVersion1_6 = SpecVersion(semver.MustParse("1.6.0")) // 1.6
-)
 
 type StandardDefinition struct {
 	BOMRef      string `json:"bom-ref,omitempty" xml:"bom-ref,attr,omitempty"`

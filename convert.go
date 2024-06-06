@@ -33,40 +33,49 @@ func (b BOM) copyAndConvert(specVersion SpecVersion) (*BOM, error) {
 
 // convert modifies the BOM such that it adheres to a given SpecVersion.
 func (b *BOM) convert(specVersion SpecVersion) {
-	if specVersion < SpecVersion1_1 {
+	//if specVersion < SpecVersion1_1 {
+	if specVersion.Compare(SpecVersion1_1) == -1 {
 		b.SerialNumber = ""
 		b.ExternalReferences = nil
 	}
-	if specVersion < SpecVersion1_2 {
+	//if specVersion < SpecVersion1_2 {
+	if specVersion.Compare(SpecVersion1_2) == -1 {
 		b.Dependencies = nil
 		b.Metadata = nil
 		b.Services = nil
 	}
-	if specVersion < SpecVersion1_3 {
+	//if specVersion < SpecVersion1_3 {
+	if specVersion.Compare(SpecVersion1_3) == -1 {
 		b.Compositions = nil
 	}
-	if specVersion < SpecVersion1_4 {
+	//if specVersion < SpecVersion1_4 {
+	if specVersion.Compare(SpecVersion1_4) == -1 {
 		b.Vulnerabilities = nil
 	}
-	if specVersion < SpecVersion1_5 {
+	//if specVersion < SpecVersion1_5 {
+	if specVersion.Compare(SpecVersion1_5) == -1 {
 		b.Annotations = nil
 		b.Formulation = nil
 	}
-	if specVersion < SpecVersion1_6 {
+	//if specVersion < SpecVersion1_6 {
+	if specVersion.Compare(SpecVersion1_6) == -1 {
 		b.Declarations = nil
 		b.Definitions = nil
 	}
 
 	if b.Metadata != nil {
-		if specVersion < SpecVersion1_3 {
+		//if specVersion < SpecVersion1_3 {
+		if specVersion.Compare(SpecVersion1_3) == -1 {
 			b.Metadata.Licenses = nil
 			b.Metadata.Properties = nil
 		}
-		if specVersion < SpecVersion1_5 {
+		//if specVersion < SpecVersion1_5 {
+		if specVersion.Compare(SpecVersion1_5) == -1 {
 			b.Metadata.Lifecycles = nil
 		}
 
-		if specVersion < SpecVersion1_6 {
+		//if specVersion < SpecVersion1_6 {
+		if specVersion.Compare(SpecVersion1_6) == -1 {
 			b.Metadata.Manufacturer = nil
 		}
 
@@ -112,14 +121,15 @@ func (b *BOM) convert(specVersion SpecVersion) {
 	}
 
 	b.SpecVersion = specVersion
-	b.XMLNS = xmlNamespaces[specVersion]
-	b.JSONSchema = jsonSchemas[specVersion]
+	b.XMLNS = xmlNamespaces[specVersion.String()]
+	b.JSONSchema = jsonSchemas[specVersion.String()]
 }
 
 // componentConverter modifies a Component such that it adheres to a given SpecVersion.
 func componentConverter(specVersion SpecVersion) func(*Component) {
 	return func(c *Component) {
-		if specVersion < SpecVersion1_1 {
+		//if specVersion < SpecVersion1_1 {
+		if specVersion.Compare(SpecVersion1_1) == -1 {
 			c.BOMRef = ""
 			c.ExternalReferences = nil
 			if c.Modified == nil {
@@ -128,7 +138,8 @@ func componentConverter(specVersion SpecVersion) func(*Component) {
 			c.Pedigree = nil
 		}
 
-		if specVersion < SpecVersion1_2 {
+		//if specVersion < SpecVersion1_2 {
+		if specVersion.Compare(SpecVersion1_2) == -1 {
 			c.Author = ""
 			c.MIMEType = ""
 			if c.Pedigree != nil {
@@ -138,23 +149,27 @@ func componentConverter(specVersion SpecVersion) func(*Component) {
 			c.SWID = nil
 		}
 
-		if specVersion < SpecVersion1_3 {
+		//if specVersion < SpecVersion1_3 {
+		if specVersion.Compare(SpecVersion1_3) == -1 {
 			c.Properties = nil
 		}
 
-		if specVersion < SpecVersion1_4 {
+		//if specVersion < SpecVersion1_4 {
+		if specVersion.Compare(SpecVersion1_4) == -1 {
 			c.ReleaseNotes = nil
 			if c.Version == "" {
 				c.Version = "0.0.0"
 			}
 		}
 
-		if specVersion < SpecVersion1_5 {
+		//if specVersion < SpecVersion1_5 {
+		if specVersion.Compare(SpecVersion1_5) == -1 {
 			c.ModelCard = nil
 			c.Data = nil
 		}
 
-		if specVersion < SpecVersion1_6 {
+		//if specVersion < SpecVersion1_6 {
+		if specVersion.Compare(SpecVersion1_6) == -1 {
 			c.SWHID = nil
 			c.OmniborID = nil
 			c.Manufacturer = nil
@@ -182,19 +197,22 @@ func convertEvidence(c *Component, specVersion SpecVersion) {
 		return
 	}
 
-	if specVersion < SpecVersion1_3 {
+	//if specVersion < SpecVersion1_3 {
+	if specVersion.Compare(SpecVersion1_3) == -1 {
 		c.Evidence = nil
 		return
 	}
 
-	if specVersion < SpecVersion1_5 {
+	//if specVersion < SpecVersion1_5 {
+	if specVersion.Compare(SpecVersion1_5) == -1 {
 		c.Evidence.Identity = nil
 		c.Evidence.Occurrences = nil
 		c.Evidence.Callstack = nil
 		return
 	}
 
-	if specVersion < SpecVersion1_6 {
+	//if specVersion < SpecVersion1_6 {
+	if specVersion.Compare(SpecVersion1_6) == -1 {
 		for i := range *c.Evidence.Occurrences {
 			occ := &(*c.Evidence.Occurrences)[i]
 
@@ -234,7 +252,8 @@ func convertExternalReferences(extRefs *[]ExternalReference, specVersion SpecVer
 			extRef.Type = ERTypeOther
 		}
 
-		if specVersion < SpecVersion1_3 {
+		//if specVersion < SpecVersion1_3 {
+		if specVersion.Compare(SpecVersion1_3) == -1 {
 			extRef.Hashes = nil
 		}
 	}
@@ -269,7 +288,8 @@ func convertLicenses(licenses *Licenses, specVersion SpecVersion) {
 		return
 	}
 
-	if specVersion < SpecVersion1_1 {
+	//if specVersion < SpecVersion1_1 {
+	if specVersion.Compare(SpecVersion1_1) == -1 {
 		converted := make(Licenses, 0)
 		for i := range *licenses {
 			choice := &(*licenses)[i]
@@ -294,7 +314,8 @@ func convertLicenses(licenses *Licenses, specVersion SpecVersion) {
 		}
 	}
 
-	if specVersion < SpecVersion1_5 {
+	//if specVersion < SpecVersion1_5 {
+	if specVersion.Compare(SpecVersion1_5) == -1 {
 		for i := range *licenses {
 			choice := &(*licenses)[i]
 			if choice.License != nil {
@@ -305,7 +326,8 @@ func convertLicenses(licenses *Licenses, specVersion SpecVersion) {
 		}
 	}
 
-	if specVersion < SpecVersion1_6 {
+	//if specVersion < SpecVersion1_6 {
+	if specVersion.Compare(SpecVersion1_6) == -1 {
 		for i := range *licenses {
 			choice := &(*licenses)[i]
 			if choice.License == nil {
@@ -336,7 +358,8 @@ func convertOrganizationalEntity(org *OrganizationalEntity, specVersion SpecVers
 		return
 	}
 
-	if specVersion < SpecVersion1_5 {
+	//if specVersion < SpecVersion1_5 {
+	if specVersion.Compare(SpecVersion1_5) == -1 {
 		org.BOMRef = ""
 
 		if org.Contact != nil {
@@ -346,7 +369,8 @@ func convertOrganizationalEntity(org *OrganizationalEntity, specVersion SpecVers
 		}
 	}
 
-	if specVersion < SpecVersion1_6 {
+	//if specVersion < SpecVersion1_6 {
+	if specVersion.Compare(SpecVersion1_6) == -1 {
 		org.Address = nil
 	}
 }
@@ -356,7 +380,8 @@ func convertOrganizationalContact(c *OrganizationalContact, specVersion SpecVers
 		return
 	}
 
-	if specVersion < SpecVersion1_5 {
+	//if specVersion < SpecVersion1_5 {
+	if specVersion.Compare(SpecVersion1_5) == -1 {
 		c.BOMRef = ""
 	}
 }
@@ -366,7 +391,8 @@ func convertModelCard(c *Component, specVersion SpecVersion) {
 		return
 	}
 
-	if specVersion < SpecVersion1_6 {
+	//if specVersion < SpecVersion1_6 {
+	if specVersion.Compare(SpecVersion1_6) == -1 {
 		if c.ModelCard.Considerations != nil {
 			c.ModelCard.Considerations.EnvironmentalConsiderations = nil
 		}
@@ -383,13 +409,15 @@ func convertVulnerabilities(vulns *[]Vulnerability, specVersion SpecVersion) {
 
 		convertTools(vuln.Tools, specVersion)
 
-		if specVersion < SpecVersion1_5 {
+		//if specVersion < SpecVersion1_5 {
+		if specVersion.Compare(SpecVersion1_5) == -1 {
 			vuln.ProofOfConcept = nil
 			vuln.Rejected = ""
 			vuln.Workaround = ""
 		}
 
-		if specVersion < SpecVersion1_6 {
+		//if specVersion < SpecVersion1_6 {
+		if specVersion.Compare(SpecVersion1_6) == -1 {
 			if vuln.Credits != nil {
 				if vuln.Credits.Organizations != nil {
 					for i := range *vuln.Credits.Organizations {
@@ -421,7 +449,8 @@ func convertAnnotations(annotations *[]Annotation, specVersion SpecVersion) {
 		return
 	}
 
-	if specVersion < SpecVersion1_6 {
+	//if specVersion < SpecVersion1_6 {
+	if specVersion.Compare(SpecVersion1_6) == -1 {
 		for i := range *annotations {
 			ann := (*annotations)[i]
 
@@ -438,11 +467,13 @@ func convertAnnotations(annotations *[]Annotation, specVersion SpecVersion) {
 // serviceConverter modifies a Service such that it adheres to a given SpecVersion.
 func serviceConverter(specVersion SpecVersion) func(*Service) {
 	return func(s *Service) {
-		if specVersion < SpecVersion1_3 {
+		//if specVersion < SpecVersion1_3 {
+		if specVersion.Compare(SpecVersion1_3) == -1 {
 			s.Properties = nil
 		}
 
-		if specVersion < SpecVersion1_4 {
+		//if specVersion < SpecVersion1_4 {
+		if specVersion.Compare(SpecVersion1_4) == -1 {
 			s.ReleaseNotes = nil
 		}
 
@@ -457,7 +488,8 @@ func convertTools(tools *ToolsChoice, specVersion SpecVersion) {
 		return
 	}
 
-	if specVersion < SpecVersion1_5 {
+	//if specVersion < SpecVersion1_5 {
+	if specVersion.Compare(SpecVersion1_5) == -1 {
 		convertedTools := make([]Tool, 0)
 		if tools.Components != nil {
 			for i := range *tools.Components {
@@ -507,7 +539,8 @@ func convertTool(tool *Tool, specVersion SpecVersion) {
 		return
 	}
 
-	if specVersion < SpecVersion1_4 {
+	//if specVersion < SpecVersion1_4 {
+	if specVersion.Compare(SpecVersion1_4) == -1 {
 		tool.ExternalReferences = nil
 	}
 
@@ -597,13 +630,13 @@ func recurseService(service *Service, f func(s *Service)) {
 func (sv SpecVersion) supportsComponentType(cType ComponentType) bool {
 	switch cType {
 	case ComponentTypeApplication, ComponentTypeDevice, ComponentTypeFramework, ComponentTypeLibrary, ComponentTypeOS:
-		return sv >= SpecVersion1_0
+		return sv.IsGreaterOrEqualVersion(SpecVersion1_0)
 	case ComponentTypeFile:
-		return sv >= SpecVersion1_1
+		return sv.IsGreaterOrEqualVersion(SpecVersion1_1)
 	case ComponentTypeContainer, ComponentTypeFirmware:
-		return sv >= SpecVersion1_2
+		return sv.IsGreaterOrEqualVersion(SpecVersion1_2)
 	case ComponentTypeData, ComponentTypeDeviceDriver, ComponentTypeMachineLearningModel, ComponentTypePlatform:
-		return sv >= SpecVersion1_5
+		return sv.IsGreaterOrEqualVersion(SpecVersion1_5)
 	}
 
 	return false
@@ -613,10 +646,10 @@ func (sv SpecVersion) supportsCompositionAggregate(ca CompositionAggregate) bool
 	switch ca {
 	case CompositionAggregateIncompleteFirstPartyOpenSourceOnly, CompositionAggregateIncompleteFirstPartyProprietaryOnly,
 		CompositionAggregateIncompleteThirdPartyOpenSourceOnly, CompositionAggregateIncompleteThirdPartyProprietaryOnly:
-		return sv >= SpecVersion1_5
+		return sv.IsGreaterOrEqualVersion(SpecVersion1_5)
 	}
 
-	return sv >= SpecVersion1_3
+	return sv.IsGreaterOrEqualVersion(SpecVersion1_3)
 }
 
 func (sv SpecVersion) supportsExternalReferenceType(ert ExternalReferenceType) bool {
@@ -642,18 +675,18 @@ func (sv SpecVersion) supportsExternalReferenceType(ert ExternalReferenceType) b
 		ERTypeStaticAnalysisReport,
 		ERTypeThreatModel,
 		ERTypeVulnerabilityAssertion:
-		return sv >= SpecVersion1_5
+		return sv.IsGreaterOrEqualVersion(SpecVersion1_5)
 	}
 
-	return sv >= SpecVersion1_1
+	return sv.IsGreaterOrEqualVersion(SpecVersion1_1)
 }
 
 func (sv SpecVersion) supportsHashAlgorithm(algo HashAlgorithm) bool {
 	switch algo {
 	case HashAlgoMD5, HashAlgoSHA1, HashAlgoSHA256, HashAlgoSHA384, HashAlgoSHA512, HashAlgoSHA3_256, HashAlgoSHA3_512:
-		return sv >= SpecVersion1_0
+		return sv.IsGreaterOrEqualVersion(SpecVersion1_0)
 	case HashAlgoSHA3_384, HashAlgoBlake2b_256, HashAlgoBlake2b_384, HashAlgoBlake2b_512, HashAlgoBlake3:
-		return sv >= SpecVersion1_2
+		return sv.IsGreaterOrEqualVersion(SpecVersion1_2)
 	}
 
 	return false
@@ -662,9 +695,9 @@ func (sv SpecVersion) supportsHashAlgorithm(algo HashAlgorithm) bool {
 func (sv SpecVersion) supportsScope(scope Scope) bool {
 	switch scope {
 	case ScopeRequired, ScopeOptional:
-		return sv >= SpecVersion1_0
+		return sv.IsGreaterOrEqualVersion(SpecVersion1_0)
 	case ScopeExcluded:
-		return sv >= SpecVersion1_2
+		return sv.IsGreaterOrEqualVersion(SpecVersion1_2)
 	}
 
 	return false
@@ -673,9 +706,9 @@ func (sv SpecVersion) supportsScope(scope Scope) bool {
 func (sv SpecVersion) supportsScoringMethod(method ScoringMethod) bool {
 	switch method {
 	case ScoringMethodCVSSv2, ScoringMethodCVSSv3, ScoringMethodCVSSv31, ScoringMethodOWASP, ScoringMethodOther:
-		return sv >= SpecVersion1_4
+		return sv.IsGreaterOrEqualVersion(SpecVersion1_4)
 	case ScoringMethodCVSSv4, ScoringMethodSSVC:
-		return sv >= SpecVersion1_5
+		return sv.IsGreaterOrEqualVersion(SpecVersion1_5)
 	}
 
 	return false

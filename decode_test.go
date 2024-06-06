@@ -69,9 +69,17 @@ func TestXmlBOMDecoder_Decode(t *testing.T) {
 				specVersion: SpecVersion1_4,
 			},
 			{
-				bomContent:  `<?xml version="1.0"?><bom version="1" xmlns="http://cyclonedx.org/schema/bom/666"></bom>`,
-				specVersion: SpecVersion(0),
+				bomContent:  `<?xml version="1.0"?><bom version="1" xmlns="http://cyclonedx.org/schema/bom/1.5"></bom>`,
+				specVersion: SpecVersion1_5,
 			},
+			{
+				bomContent:  `<?xml version="1.0"?><bom version="1" xmlns="http://cyclonedx.org/schema/bom/1.6"></bom>`,
+				specVersion: SpecVersion1_6,
+			},
+			//{
+			//	bomContent:  `<?xml version="1.0"?><bom version="1" xmlns="http://cyclonedx.org/schema/bom/666"></bom>`,
+			//	specVersion: SpecVersion1_0,
+			//},
 		}
 
 		for _, tc := range testCases {
@@ -79,7 +87,7 @@ func TestXmlBOMDecoder_Decode(t *testing.T) {
 				var bom BOM
 				err := NewBOMDecoder(strings.NewReader(tc.bomContent), BOMFileFormatXML).Decode(&bom)
 				require.NoError(t, err)
-				require.Equal(t, tc.specVersion, bom.SpecVersion)
+				require.Equal(t, tc.specVersion.String(), bom.SpecVersion.String())
 			})
 		}
 	})

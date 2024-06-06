@@ -55,7 +55,8 @@ type jsonBOMEncoder struct {
 
 // Encode implements the BOMEncoder interface.
 func (j jsonBOMEncoder) Encode(bom *BOM) error {
-	if bom.SpecVersion < SpecVersion1_2 {
+	//if bom.SpecVersion < SpecVersion1_2 {
+	if bom.SpecVersion.Compare(SpecVersion1_2) == -1 {
 		return fmt.Errorf("json format is not supported for specification versions lower than %s", SpecVersion1_2)
 	}
 
