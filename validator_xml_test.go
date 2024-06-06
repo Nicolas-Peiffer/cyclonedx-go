@@ -57,20 +57,13 @@ func readXMLFromFileToBOMNoValidation(xmlFilePath string) (*BOM, error) {
 
 func TestValidXMLBOM(t *testing.T) {
 	bom, _ := readXMLFromFileToBOMNoValidation("testdata/valid-bom.xml")
-	fmt.Print("BOM spec version XML\n")
-	fmt.Print(bom.SpecVersion.String())
-	fmt.Print("\nBOM spec version XML\n")
+
 	// Test JSON validation with a valid BOM
 	assert.NoError(t, bom.ValidateXML(), "XML validation should succeed for a valid BOM")
 }
 
 func TestInvalidXMLBOM(t *testing.T) {
 	invalidBOM, _ := readXMLFromFileToBOMNoValidation("testdata/invalid-crypto-protocols-cbom.xml")
-
-	fmt.Print("invalidBOM\n")
-	//fmt.Print(invalidBOM.Metadata.Authors)
-
-	//fmt.Print(invalidBOM.ValidateXML())
 
 	assert.Error(t, invalidBOM.ValidateXML(), "XML validation should fail for an invalid BOM")
 }

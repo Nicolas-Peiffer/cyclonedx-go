@@ -17,7 +17,10 @@
 
 package cyclonedx
 
-import "embed"
+import (
+	"embed"
+	"fmt"
+)
 
 // Embed JSON schema and XML XSD schema in the binary
 //
@@ -36,8 +39,14 @@ import "embed"
 //go:embed schema/spdx.xsd
 var f embed.FS
 
-// Validator interface describes BOM validator
-type Validator interface {
-	//Validate() (error, []error)
-	Validate() error
+// Validate both XML and JSON in one command
+func (bom *BOM) Validate() error {
+	jsonErr := bom.ValidateJSON()
+	xmlErr := bom.ValidateXML()
+
+	if (jsonErr == nil) && (xmlErr == nil) {
+		return nil
+	} else {
+		return fmt.Errorf("%v; %v", jsonErr, xmlErr)
+	}
 }

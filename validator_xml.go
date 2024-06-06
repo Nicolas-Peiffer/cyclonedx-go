@@ -80,8 +80,6 @@ func ValidateXMLData(xmlData []byte, version SpecVersion) error {
 // ValidateXML validates the BOM as XML.
 func (bom *BOM) ValidateXML() error {
 	version, err := getSpecVersionByXmlNamespace(bom.XMLNS)
-	fmt.Print("ValidateXML version: ")
-	fmt.Print(version.String())
 	if err != nil {
 		panic(err)
 	}
