@@ -22,9 +22,11 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+
+	"github.com/blang/semver/v4"
 )
 
-//go:generate stringer -linecomment -output cyclonedx_string.go -type MediaType,SpecVersion
+//go:generate stringer -linecomment -output cyclonedx_string.go -type MediaType
 
 const (
 	BOMFormat = "CycloneDX"
@@ -221,35 +223,37 @@ type Commit struct {
 }
 
 type Component struct {
-	BOMRef             string                `json:"bom-ref,omitempty" xml:"bom-ref,attr,omitempty"`
-	MIMEType           string                `json:"mime-type,omitempty" xml:"mime-type,attr,omitempty"`
-	Type               ComponentType         `json:"type" xml:"type,attr"`
-	Supplier           *OrganizationalEntity `json:"supplier,omitempty" xml:"supplier,omitempty"`
-	Author             string                `json:"author,omitempty" xml:"author,omitempty"`
-	Publisher          string                `json:"publisher,omitempty" xml:"publisher,omitempty"`
-	Group              string                `json:"group,omitempty" xml:"group,omitempty"`
-	Name               string                `json:"name" xml:"name"`
-	Version            string                `json:"version,omitempty" xml:"version,omitempty"`
-	Description        string                `json:"description,omitempty" xml:"description,omitempty"`
-	Scope              Scope                 `json:"scope,omitempty" xml:"scope,omitempty"`
-	Hashes             *[]Hash               `json:"hashes,omitempty" xml:"hashes>hash,omitempty"`
-	Licenses           *Licenses             `json:"licenses,omitempty" xml:"licenses,omitempty"`
-	Copyright          string                `json:"copyright,omitempty" xml:"copyright,omitempty"`
-	CPE                string                `json:"cpe,omitempty" xml:"cpe,omitempty"`
-	PackageURL         string                `json:"purl,omitempty" xml:"purl,omitempty"`
-	OmniborID          *[]string             `json:"omniborId,omitempty" xml:"omniborId,omitempty"`
-	SWHID              *[]string             `json:"swhid,omitempty" xml:"swhid,omitempty"`
-	SWID               *SWID                 `json:"swid,omitempty" xml:"swid,omitempty"`
-	Modified           *bool                 `json:"modified,omitempty" xml:"modified,omitempty"`
-	Pedigree           *Pedigree             `json:"pedigree,omitempty" xml:"pedigree,omitempty"`
-	ExternalReferences *[]ExternalReference  `json:"externalReferences,omitempty" xml:"externalReferences>reference,omitempty"`
-	Properties         *[]Property           `json:"properties,omitempty" xml:"properties>property,omitempty"`
-	Components         *[]Component          `json:"components,omitempty" xml:"components>component,omitempty"`
-	Evidence           *Evidence             `json:"evidence,omitempty" xml:"evidence,omitempty"`
-	ReleaseNotes       *ReleaseNotes         `json:"releaseNotes,omitempty" xml:"releaseNotes,omitempty"`
-	ModelCard          *MLModelCard          `json:"modelCard,omitempty" xml:"modelCard,omitempty"`
-	Data               *ComponentData        `json:"data,omitempty" xml:"data,omitempty"`
-	CryptoProperties   *CryptoProperties     `json:"cryptoProperties,omitempty" xml:"cryptoProperties,omitempty"`
+	BOMRef             string                   `json:"bom-ref,omitempty" xml:"bom-ref,attr,omitempty"`
+	MIMEType           string                   `json:"mime-type,omitempty" xml:"mime-type,attr,omitempty"`
+	Type               ComponentType            `json:"type" xml:"type,attr"`
+	Supplier           *OrganizationalEntity    `json:"supplier,omitempty" xml:"supplier,omitempty"`
+	Manufacturer       *OrganizationalEntity    `json:"manufacturer,omitempty" xml:"manufacturer,omitempty"`
+	Author             string                   `json:"author,omitempty" xml:"author,omitempty"` // Deprecated: Use authors or manufacturer instead.
+	Authors            *[]OrganizationalContact `json:"authors,omitempty" xml:"authors>author,omitempty"`
+	Publisher          string                   `json:"publisher,omitempty" xml:"publisher,omitempty"`
+	Group              string                   `json:"group,omitempty" xml:"group,omitempty"`
+	Name               string                   `json:"name" xml:"name"`
+	Version            string                   `json:"version,omitempty" xml:"version,omitempty"`
+	Description        string                   `json:"description,omitempty" xml:"description,omitempty"`
+	Scope              Scope                    `json:"scope,omitempty" xml:"scope,omitempty"`
+	Hashes             *[]Hash                  `json:"hashes,omitempty" xml:"hashes>hash,omitempty"`
+	Licenses           *Licenses                `json:"licenses,omitempty" xml:"licenses,omitempty"`
+	Copyright          string                   `json:"copyright,omitempty" xml:"copyright,omitempty"`
+	CPE                string                   `json:"cpe,omitempty" xml:"cpe,omitempty"`
+	PackageURL         string                   `json:"purl,omitempty" xml:"purl,omitempty"`
+	OmniborID          *[]string                `json:"omniborId,omitempty" xml:"omniborId,omitempty"`
+	SWHID              *[]string                `json:"swhid,omitempty" xml:"swhid,omitempty"`
+	SWID               *SWID                    `json:"swid,omitempty" xml:"swid,omitempty"`
+	Modified           *bool                    `json:"modified,omitempty" xml:"modified,omitempty"`
+	Pedigree           *Pedigree                `json:"pedigree,omitempty" xml:"pedigree,omitempty"`
+	ExternalReferences *[]ExternalReference     `json:"externalReferences,omitempty" xml:"externalReferences>reference,omitempty"`
+	Properties         *[]Property              `json:"properties,omitempty" xml:"properties>property,omitempty"`
+	Components         *[]Component             `json:"components,omitempty" xml:"components>component,omitempty"`
+	Evidence           *Evidence                `json:"evidence,omitempty" xml:"evidence,omitempty"`
+	ReleaseNotes       *ReleaseNotes            `json:"releaseNotes,omitempty" xml:"releaseNotes,omitempty"`
+	ModelCard          *MLModelCard             `json:"modelCard,omitempty" xml:"modelCard,omitempty"`
+	Data               *ComponentData           `json:"data,omitempty" xml:"data,omitempty"`
+	CryptoProperties   *CryptoProperties        `json:"cryptoProperties,omitempty" xml:"cryptoProperties,omitempty"`
 }
 
 type ComponentData struct {
@@ -949,7 +953,7 @@ const (
 )
 
 func (mt MediaType) WithVersion(specVersion SpecVersion) (string, error) {
-	if mt == MediaTypeJSON && specVersion < SpecVersion1_2 {
+	if mt == MediaTypeJSON && (specVersion.Compare(SpecVersion1_2) == -1) {
 		return "", fmt.Errorf("json format is not supported for specification versions lower than %s", SpecVersion1_2)
 	}
 
@@ -957,15 +961,16 @@ func (mt MediaType) WithVersion(specVersion SpecVersion) (string, error) {
 }
 
 type Metadata struct {
-	Timestamp   string                   `json:"timestamp,omitempty" xml:"timestamp,omitempty"`
-	Lifecycles  *[]Lifecycle             `json:"lifecycles,omitempty" xml:"lifecycles>lifecycle,omitempty"`
-	Tools       *ToolsChoice             `json:"tools,omitempty" xml:"tools,omitempty"`
-	Authors     *[]OrganizationalContact `json:"authors,omitempty" xml:"authors>author,omitempty"`
-	Component   *Component               `json:"component,omitempty" xml:"component,omitempty"`
-	Manufacture *OrganizationalEntity    `json:"manufacture,omitempty" xml:"manufacture,omitempty"`
-	Supplier    *OrganizationalEntity    `json:"supplier,omitempty" xml:"supplier,omitempty"`
-	Licenses    *Licenses                `json:"licenses,omitempty" xml:"licenses,omitempty"`
-	Properties  *[]Property              `json:"properties,omitempty" xml:"properties>property,omitempty"`
+	Timestamp    string                   `json:"timestamp,omitempty" xml:"timestamp,omitempty"`
+	Lifecycles   *[]Lifecycle             `json:"lifecycles,omitempty" xml:"lifecycles>lifecycle,omitempty"`
+	Tools        *ToolsChoice             `json:"tools,omitempty" xml:"tools,omitempty"`
+	Authors      *[]OrganizationalContact `json:"authors,omitempty" xml:"authors>author,omitempty"`
+	Component    *Component               `json:"component,omitempty" xml:"component,omitempty"`
+	Manufacture  *OrganizationalEntity    `json:"manufacture,omitempty" xml:"manufacture,omitempty"` // Deprecated: Use Component Manufacturer instead.
+	Manufacturer *OrganizationalEntity    `json:"manufacturer,omitempty" xml:"manufacturer,omitempty"`
+	Supplier     *OrganizationalEntity    `json:"supplier,omitempty" xml:"supplier,omitempty"`
+	Licenses     *Licenses                `json:"licenses,omitempty" xml:"licenses,omitempty"`
+	Properties   *[]Property              `json:"properties,omitempty" xml:"properties>property,omitempty"`
 }
 
 type MLDatasetChoice struct {
@@ -985,12 +990,18 @@ type MLModelCard struct {
 }
 
 type MLModelCardConsiderations struct {
-	Users                 *[]string                          `json:"users,omitempty" xml:"users>user,omitempty"`
-	UseCases              *[]string                          `json:"useCases,omitempty" xml:"useCases>useCase,omitempty"`
-	TechnicalLimitations  *[]string                          `json:"technicalLimitations,omitempty" xml:"technicalLimitations>technicalLimitation,omitempty"`
-	PerformanceTradeoffs  *[]string                          `json:"performanceTradeoffs,omitempty" xml:"performanceTradeoffs>performanceTradeoff,omitempty"`
-	EthicalConsiderations *[]MLModelCardEthicalConsideration `json:"ethicalConsiderations,omitempty" xml:"ethicalConsiderations>ethicalConsideration,omitempty"`
-	FairnessAssessments   *[]MLModelCardFairnessAssessment   `json:"fairnessAssessments,omitempty" xml:"fairnessAssessments>fairnessAssessment,omitempty"`
+	Users                       *[]string                               `json:"users,omitempty" xml:"users>user,omitempty"`
+	UseCases                    *[]string                               `json:"useCases,omitempty" xml:"useCases>useCase,omitempty"`
+	TechnicalLimitations        *[]string                               `json:"technicalLimitations,omitempty" xml:"technicalLimitations>technicalLimitation,omitempty"`
+	PerformanceTradeoffs        *[]string                               `json:"performanceTradeoffs,omitempty" xml:"performanceTradeoffs>performanceTradeoff,omitempty"`
+	EthicalConsiderations       *[]MLModelCardEthicalConsideration      `json:"ethicalConsiderations,omitempty" xml:"ethicalConsiderations>ethicalConsideration,omitempty"`
+	EnvironmentalConsiderations *MLModelCardEnvironmentalConsiderations `json:"environmentalConsiderations,omitempty" xml:"environmentalConsiderations,omitempty"`
+	FairnessAssessments         *[]MLModelCardFairnessAssessment        `json:"fairnessAssessments,omitempty" xml:"fairnessAssessments>fairnessAssessment,omitempty"`
+}
+
+type MLModelCardEnvironmentalConsiderations struct {
+	EnergyConsumptions *[]MLModelEnergyConsumption `json:"energyConsumptions,omitempty" xml:"energyConsumptions>energyConsumption,omitempty"`
+	Properties         *[]Property                 `json:"properties,omitempty" xml:"properties>property,omitempty"`
 }
 
 type MLModelCardEthicalConsideration struct {
@@ -1004,6 +1015,72 @@ type MLModelCardFairnessAssessment struct {
 	Harms              string `json:"harms,omitempty" xml:"harms,omitempty"`
 	MitigationStrategy string `json:"mitigationStrategy,omitempty" xml:"mitigationStrategy,omitempty"`
 }
+
+type MLModelCO2Measure struct {
+	Value float32        `json:"value" xml:"value"`
+	Unit  MLModelCO2Unit `json:"unit" xml:"unit"`
+}
+
+type MLModelCO2Unit string
+
+const MLModelCO2UnitTCO2Eq MLModelCO2Unit = "tCO2eq"
+
+type MLModelEnergyConsumption struct {
+	Activity           MLModelEnergyConsumptionActivity `json:"activity" xml:"activity"`
+	EnergyProviders    *[]MLModelEnergyProvider         `json:"energyProviders" xml:"energyProviders"`
+	ActivityEnergyCost MLModelEnergyMeasure             `json:"activityEnergyCost" xml:"activityEnergyCost"`
+	CO2CostEquivalent  *MLModelCO2Measure               `json:"co2CostEquivalent,omitempty" xml:"co2CostEquivalent,omitempty"`
+	CO2CostOffset      *MLModelCO2Measure               `json:"co2CostOffset,omitempty" xml:"co2CostOffset,omitempty"`
+	Properties         *[]Property                      `json:"properties,omitempty" xml:"properties>property,omitempty"`
+}
+
+type MLModelEnergyConsumptionActivity string
+
+const (
+	MLModelEnergyConsumptionActivityDesign          MLModelEnergyConsumptionActivity = "design"
+	MLModelEnergyConsumptionActivityDataCollection  MLModelEnergyConsumptionActivity = "data-collection"
+	MLModelEnergyConsumptionActivityDataPreparation MLModelEnergyConsumptionActivity = "data-preparation"
+	MLModelEnergyConsumptionActivityTraining        MLModelEnergyConsumptionActivity = "training"
+	MLModelEnergyConsumptionActivityFineTuning      MLModelEnergyConsumptionActivity = "fine-tuning"
+	MLModelEnergyConsumptionActivityValidation      MLModelEnergyConsumptionActivity = "validation"
+	MLModelEnergyConsumptionActivityDeployment      MLModelEnergyConsumptionActivity = "deployment"
+	MLModelEnergyConsumptionActivityInference       MLModelEnergyConsumptionActivity = "inference"
+	MLModelEnergyConsumptionActivityOther           MLModelEnergyConsumptionActivity = "other"
+)
+
+type MLModelEnergyMeasure struct {
+	Value float32           `json:"value" xml:"value"`
+	Unit  MLModelEnergyUnit `json:"unit" xml:"unit"`
+}
+
+type MLModelEnergyProvider struct {
+	BOMRef             string                `json:"bom-ref,omitempty" xml:"bom-ref,attr,omitempty"`
+	Description        string                `json:"description,omitempty" xml:"description,omitempty"`
+	Organization       *OrganizationalEntity `json:"organization" xml:"organization"`
+	EnergySource       MLModelEnergySource   `json:"energySource" xml:"energySource"`
+	EnergyProvided     *MLModelEnergyMeasure `json:"energyProvided" xml:"energyProvided"`
+	ExternalReferences *[]ExternalReference  `json:"externalReferences,omitempty" xml:"externalReferences>reference,omitempty"`
+}
+
+type MLModelEnergySource string
+
+const (
+	MLModelEnergySourceCoal       MLModelEnergySource = "coal"
+	MLModelEnergySourceOil        MLModelEnergySource = "oil"
+	MLModelEnergySourceNaturalGas MLModelEnergySource = "natural-gas"
+	MLModelEnergySourceNuclear    MLModelEnergySource = "nuclear"
+	MLModelEnergySourceWind       MLModelEnergySource = "wind"
+	MLModelEnergySourceSolar      MLModelEnergySource = "solar"
+	MLModelEnergySourceGeothermal MLModelEnergySource = "geothermal"
+	MLModelEnergySourceHydropower MLModelEnergySource = "hydropower"
+	MLModelEnergySourceBiofuel    MLModelEnergySource = "biofuel"
+	MLModelEnergySourceUnknown    MLModelEnergySource = "unknown"
+	MLModelEnergySourceOther      MLModelEnergySource = "other"
+)
+
+type MLModelEnergyUnit string
+
+const MLModelEnergyUnitKWH MLModelEnergyUnit = "kWh"
 
 type MLModelParameters struct {
 	Approach           *MLModelParametersApproach `json:"approach,omitempty" xml:"approach,omitempty"`
@@ -1052,12 +1129,14 @@ type Note struct {
 }
 
 type OrganizationalContact struct {
-	Name  string `json:"name,omitempty" xml:"name,omitempty"`
-	Email string `json:"email,omitempty" xml:"email,omitempty"`
-	Phone string `json:"phone,omitempty" xml:"phone,omitempty"`
+	BOMRef string `json:"bom-ref,omitempty" xml:"bom-ref,attr,omitempty"`
+	Name   string `json:"name,omitempty" xml:"name,omitempty"`
+	Email  string `json:"email,omitempty" xml:"email,omitempty"`
+	Phone  string `json:"phone,omitempty" xml:"phone,omitempty"`
 }
 
 type OrganizationalEntity struct {
+	BOMRef  string                   `json:"bom-ref,omitempty" xml:"bom-ref,attr,omitempty"`
 	Name    string                   `json:"name" xml:"name"`
 	Address *PostalAddress           `json:"address,omitempty" xml:"address,omitempty"`
 	URL     *[]string                `json:"url,omitempty" xml:"url,omitempty"`
@@ -1235,16 +1314,27 @@ type Source struct {
 	URL  string `json:"url,omitempty" xml:"url,omitempty"`
 }
 
-type SpecVersion int
+// Alias semver.Version as SpecVersion
+type SpecVersion semver.Version
+
+// Method to get the version string
+func (v SpecVersion) String() string {
+	return semver.Version(v).String()
+}
+
+// Method to compare SpecVersion with another SpecVersion
+func (v SpecVersion) Compare(other SpecVersion) int {
+	return semver.Version(v).Compare(semver.Version(other))
+}
 
 const (
-	SpecVersion1_0 SpecVersion = iota + 1 // 1.0
-	SpecVersion1_1                        // 1.1
-	SpecVersion1_2                        // 1.2
-	SpecVersion1_3                        // 1.3
-	SpecVersion1_4                        // 1.4
-	SpecVersion1_5                        // 1.5
-	SpecVersion1_6                        // 1.6
+	SpecVersion1_0 = SpecVersion(semver.MustParse("1.0.0")) // 1.0
+	SpecVersion1_1 = SpecVersion(semver.MustParse("1.1.0")) // 1.1
+	SpecVersion1_2 = SpecVersion(semver.MustParse("1.2.0")) // 1.2
+	SpecVersion1_3 = SpecVersion(semver.MustParse("1.3.0")) // 1.3
+	SpecVersion1_4 = SpecVersion(semver.MustParse("1.4.0")) // 1.4
+	SpecVersion1_5 = SpecVersion(semver.MustParse("1.5.0")) // 1.5
+	SpecVersion1_6 = SpecVersion(semver.MustParse("1.6.0")) // 1.6
 )
 
 type StandardDefinition struct {

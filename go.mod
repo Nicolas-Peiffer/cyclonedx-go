@@ -14,6 +14,7 @@ require (
 require github.com/pkg/errors v0.9.1 // indirect
 
 require (
+	github.com/blang/semver/v4 v4.0.0
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/lestrrat-go/libxml2 v0.0.0-20240521004304-a75c203ac627
 	github.com/pmezard/go-difflib v1.0.0 // indirect
