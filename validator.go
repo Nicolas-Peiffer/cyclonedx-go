@@ -24,19 +24,20 @@ import (
 
 // Embed JSON schema and XML XSD schema in the binary
 //
-//go:embed schema/bom-1.2.schema.json
-//go:embed schema/bom-1.3.schema.json
-//go:embed schema/bom-1.4.schema.json
-//go:embed schema/bom-1.5.schema.json
-//go:embed schema/bom-1.6.schema.json
-//go:embed schema/bom-1.0.xsd
-//go:embed schema/bom-1.1.xsd
-//go:embed schema/bom-1.2.xsd
-//go:embed schema/bom-1.3.xsd
-//go:embed schema/bom-1.4.xsd
-//go:embed schema/bom-1.5.xsd
-//go:embed schema/bom-1.6.xsd
-//go:embed schema/spdx.xsd
+//go:embed specification/schema/bom-1.2.schema.json
+//go:embed specification/schema/bom-1.3.schema.json
+//go:embed specification/schema/bom-1.4.schema.json
+//go:embed specification/schema/bom-1.5.schema.json
+//go:embed specification/schema/bom-1.6.schema.json
+//go:embed specification/schema/bom-1.0.xsd
+//go:embed specification/schema/bom-1.1.xsd
+//go:embed specification/schema/bom-1.2.xsd
+//go:embed specification/schema/bom-1.3.xsd
+//go:embed specification/schema/bom-1.4.xsd
+//go:embed specification/schema/bom-1.5.xsd
+//go:embed specification/schema/bom-1.6.xsd
+//go:embed specification/schema/spdx.xsd
+//go:embed schema/xmlcatalog.xml
 var f embed.FS
 
 // Validate both XML and JSON in one command

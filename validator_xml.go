@@ -29,9 +29,12 @@ import (
 	"github.com/lestrrat-go/libxml2/xsd"
 )
 
-// ValidateXMLData validates the BOM in XML format against the specified schema version using encoding/xml package.
+// ValidateXMLData validates the BOM in XML format against the specified schema
+// version using encoding/xml package.
 func ValidateXMLData(xmlData []byte, version SpecVersion) error {
-	schemaPath := filepath.Join("schema", fmt.Sprintf("bom-%s.xsd", version.String()))
+	// Schema files are taken from the CycloneDX specification repository.
+	//   git submodule add https://github.com/CycloneDX/specification specification
+	schemaPath := filepath.Join("specification/schema/", fmt.Sprintf("bom-%s.xsd", version.String()))
 	schemaFile, err := os.Open(schemaPath)
 	if err != nil {
 		return fmt.Errorf("failed to open XML schema file: %v", err)
@@ -45,8 +48,8 @@ func ValidateXMLData(xmlData []byte, version SpecVersion) error {
 	}
 
 	// Load the XSD schema and the XML catalog
+	// TODO: move the schema/xmlcatalog.xml file to https://github.com/CycloneDX/specification/schema (waiting for the PR).
 	schema, err := xsd.Parse(schemaData.Bytes(), xsd.WithPath("schema/xmlcatalog.xml"))
-	//schema, err := xsd.Parse(schemaData.Bytes())
 	if err != nil {
 		return fmt.Errorf("failed to parse XML schema: %v", err)
 	}
